@@ -6,32 +6,30 @@ import random
 from chatterbot import ChatBot
 from datetime import datetime
 import forecastio
+import logging
 
-DARKSKY_API_KEY = "754a52e2db50d325b4bdce9b0ea93364"
-forecastio_api_key = "754a52e2db50d325b4bdce9b0ea93364"
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+ch = logging.StreamHandler()
+logger.addHandler(ch)
 
-lat = -31.967819
-lng = 115.87718
+# Constants
+READ_WEBSOCKET_DELAY = os.environ.get("READ_WEBSOCKET_DELAY") # delay between reading from firehose
 
-forecast = forecastio.load_forecast(DARKSKY_API_KEY, lat, lng)
+# Slack API 
+SLACK_BOT_ID = os.environ.get("SLACK_BOT_ID")
+SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN")
+
+# Weather service API key and target location
+FORECASTIO_API_KEY = os.getenv('FORECASTIO_API_KEY')
+DARKSKY_API_KEY = os.getenv('DARKSKY_API_KEY')
+LAT = os.getenv('LAT')
+LNG = os.getenv('LNG')
+
+forecast = forecastio.load_forecast(DARKSKY_API_KEY, LAT, LNG)
 
 byHour = forecast.hourly()
-print (byHour.summary)
-print (byHour.icon)
-
-# Uncomment the following lines to enable verbose logging
-# import logging
-# logging.basicConfig(level=logging.INFO)
-
-# starterbot's ID as an environment variable
-#SLACK_BOT_ID = os.environ.get("SLACK_BOT_ID")
-
-# constants
-#SLACK_BOT_TOKEN = 'xoxb-249135592198-YtX3rx2YGpIz3UJ10sAPVwvp' #eikonbot user
-SLACK_BOT_TOKEN = 'xoxb-250664593921-l5Taz1QzdMbo9wwFbuygkL0T' #e-bot user (via custom integration)
-#SLACK_BOT_TOKEN = 'xoxb-249135592198-bOftyviI7hGScYQFRHpubfdr'
-#SLACK_BOT_ID = 'U7B3ZHE5U' #eikonbot user
-SLACK_BOT_ID = 'U7CKJHFT3' #e-bot user
+logger.info('Forecast Summary: {}'.format(byHour.summary))
 
 AT_BOT = "<@" + SLACK_BOT_ID + ">"
 
@@ -45,16 +43,15 @@ chatbot = ChatBot(
         # "chatterbot.logic.TimeLogicAdapter",
         "chatterbot.logic.BestMatch"
     ],
-    database = "/Users/Rus/Development/Python/Projects/eikonbot/eikonbot_database_new.db",
+    database = "database.db",
     trainer = 'chatterbot.trainers.ChatterBotCorpusTrainer',
-    forecastio_api_key = "754a52e2db50d325b4bdce9b0ea93364"
+    forecastio_api_key = FORECASTIO_API_KEY
 )
 
 #chatbot.train('chatterbot.corpus.english')
 chatbot.train('chatterbot.corpus.custom')
 
 # instantiate Slack & Twilio clients
-#slack_client = SlackClient(os.environ.get('SLACK_BOT_TOKEN'))
 slack_client = SlackClient(SLACK_BOT_TOKEN)
 
 userList = {}
@@ -71,8 +68,6 @@ if api_call.get('ok'):
     			userList[userCode] = '%s' % user['real_name']
     	except KeyError:
     		pass
-for key, value in userList.items():
-	print (key, value)
 			
 
 def handle_command(command, channel, userID):
@@ -81,11 +76,6 @@ def handle_command(command, channel, userID):
         are valid commands. If so, then acts on the commands. If not,
         returns back what it needs for clarification.
     """
-    
-    '''
-    for key, value in userList.items():
-    	print key, value
-    '''
     
     attachments = None
     userName = userList[userID]
@@ -112,9 +102,9 @@ def parse_slack_output(slack_rtm_output):
 
 
 if __name__ == "__main__":
-    READ_WEBSOCKET_DELAY = 1 # 2 second delay between reading from firehose
+    READ_WEBSOCKET_DELAY = 2 # 2 second delay between reading from firehose
     if slack_client.rtm_connect():
-        print("Eikon Bot is connected and running!")
+        print("Slack-ChatBot is connected and running!")
         while True:
             command, channel, userID = parse_slack_output(slack_client.rtm_read())
             if command and channel:
