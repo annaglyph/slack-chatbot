@@ -1,11 +1,11 @@
 {
-    "name": "Screenly Dynamic Content",
-    "description": "An example script for creating a dynamic playlist based on weather conditions using Screenly Pro's API",
+    "name": "Slack ChatBot",
+    "description": "An example script for creating a Slack ChatBot",
     "image": "heroku/python",
-    "repository": "https://github.com/Screenly/api-example-dynamic-content",
+    "repository": "https://github.com/anaglyph/slack-chatbot",
     "keywords": [
         "python",
-        "digital-signage",
+        "slack",
         "api"
     ],
     "formation": {
@@ -14,30 +14,30 @@
         }
     },
     "env": {
-        "PLAYLIST_ID": {
-            "description": "The id of the playlist you want to enable/disable."
+        "SLACK_BOT_ID": {
+            "description": "Your Slack ChatBot user ID."
         },
-        "TOKEN": {
-            "description": "The Screenly Pro API token."
+        "SLACK_BOT_TOKEN": {
+            "description": "Your Slack ChatBot token."
         },
         "DARKSKY_API_KEY": {
             "description": "Your API key from Darksky."
         },
+        "FORECASTIO_API_KEY": {
+            "description": "Your API key from Forecast.io."
+        },
         "LAT": {
-            "description": "The latitude of the location you want to monitor. Defaults to '51.5074' for London.",
-            "value": "51.5074"
+            "description": "The latitude of the location you want to monitor. Defaults to '51.5115473' for Soho, London.",
+            "value": "51.5115473"
         },
         "LNG": {
-            "description": "The longitude of the location you want to monitor. Defaults to '0.1278' for London.",
-            "value": "0.1278"
+            "description": "The longitude of the location you want to monitor. Defaults to '-0.1373117' for Soho, London.",
+            "value": "-0.1373117"
         },
-        "TEMP_THRESHOLD": {
-            "description": "The temperature threshold for where the playlist is triggered (above or below) in Celcius. Defaults to '0'.",
-            "value": "0"
-        },
-        "ABOVE_OR_BELOW": {
-            "description": "If the threshold the event should be triggered above or below. Defaults to 'below'.",
-            "value": "below"
+        "READ_WEBSOCKET_DELAY": {
+            "description": "Delay between reading from firehose. Defaults to '2'.",
+            "value": "2"
         }
     }
 }
+
